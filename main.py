@@ -27,6 +27,10 @@ def download_file(url, path):
                 shutil.copyfileobj(raw, output)
 
 def get_illust(url, quality="original"):
+
+    if quality == None:
+        quality = "original"
+
     illust_id = url[url.rindex("/")+1:]
     ajax_url = illust_url.replace("[illustID]", illust_id)
     response = s.get(ajax_url).json()
@@ -72,6 +76,10 @@ def convert_mp4(ugoira_id, response, base_dir):
     return
 
 def get_ugoira(url, quality="originalSrc", convertGif=False, convertMp4=False, cleanup=True):
+
+    if quality == None:
+        quality = "originalSrc"
+
     ugoira_id = url[url.rindex("/")+1:]
     ajax_url = ugoira_url.replace("[ugoiraID]", ugoira_id)
     response = s.get(ajax_url).json()
@@ -104,12 +112,33 @@ def get_ugoira(url, quality="originalSrc", convertGif=False, convertMp4=False, c
     path.unlink(missing_ok=True)
 
 def main():
-    cj = http.cookiejar.MozillaCookieJar("cookies.txt")
+    parser = argparse.ArgumentParser("pixiv download")
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("-i", "--illust", help="Illustration url")
+    group.add_argument("-u", "--ugoira", help="Ugoira url")
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("-v", "--video", help="Convert ugoira to video", action="store_true")
+    group.add_argument("-g", "--gif", help="Convert ugoira to gif", action="store_true")
+    parser.add_argument("-c", "--cookies", help="File containing cookies exported for your browser while beiing logged in pixiv", required=True)
+    parser.add_argument("-k", "--clean-up", help="Clean up useless files when converting ugoiras", action="store_true")
+    parser.add_argument("-q", "--quality", help="Specify the quality of the downloaded file. Can either be [thumb_mini|small|regular|original] for illustration or [src|originalSrc] for ugoiras. Default is max quality", default=None)
+
+    args = parser.parse_args()
+
+    if args.cookies:
+        if not pathlib.Path(args.cookies).exists():
+            print("You have to specify a valid cookie file !")
+            return
+    
+    cj = http.cookiejar.MozillaCookieJar(args.cookies)
     cj.load(ignore_expires=True)
     s.cookies = cj
 
-    #get_illust(sys.argv[1])
-    get_ugoira(sys.argv[1], "src", convertMp4=True, cleanup=True)
+    if args.illust:
+        get_illust(args.illust, quality=args.quality)
+
+    if args.ugoira:
+        get_ugoira(args.ugoira, onvertMp4=args.video, cleanup=args.clean_up, convertGif=args.gif, quality=args.quality)
     return
 
 
