@@ -137,7 +137,7 @@ def main():
         get_illust(args.illust, quality=args.quality)
 
     if args.ugoira:
-        get_ugoira(args.ugoira, onvertMp4=args.video, cleanup=args.clean_up, convertGif=args.gif, quality=args.quality)
+        get_ugoira(args.ugoira, convertMp4=args.video, cleanup=args.clean_up, convertGif=args.gif, quality=args.quality)
     return
 
 
