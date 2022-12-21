@@ -38,11 +38,17 @@ Once you got them, you can use the program as follow :
 
 `python main.py -u "https://www.pixiv.net/en/artworks/103076903" -v -k -c cookies.txt`
 
-### Download everything from an user
+### Download every illustration and animations from an user
 
-* Download everything from an user. Quality settings and ugoira convertion arguments can be set too. 
+* Download every illustration and animations from an user. Quality settings and ugoira convertion arguments can be set too. 
 
 `python main.py -b "https://www.pixiv.net/en/users/20566937" -g --ugoira-quality=src --image-quality=regular -c cookies`
+
+### Download a whole serie
+
+* Download a full serie. You can apply image quality tag too.
+
+`python main.py -s "https://www.pixiv.net/user/61131390/series/160874"`
 
 ## Future updates
 
