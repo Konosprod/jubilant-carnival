@@ -9,11 +9,13 @@ from PIL import Image
 import ffmpeg
 import re
 import time
+import pathvalidate
 
 ugoira_url = "https://www.pixiv.net/ajax/illust/[ugoiraID]/ugoira_meta?lang=en"
 illust_url = "https://www.pixiv.net/ajax/illust/[illustID]/pages?lang=en"
 user_url = "https://www.pixiv.net/ajax/user/[userID]/profile/all?lang=en"
 artwork_url = "https://www.pixiv.net/en/artworks/"
+serie_url = "https://www.pixiv.net/ajax/series/[serieID]?lang=en&p="
 
 regex = re.compile("(?P<id>\d+)")
 
@@ -148,12 +150,38 @@ def get_user(url, video_quality="originalSrc", convertGif=False, convertMp4=Fals
                 get_ugoira(artwork_url + illust, quality=video_quality, convertGif=convertGif,
                            convertMp4=convertMp4, cleanup=cleanup, directory=str(base_dir))
             else:
-                continue
-                #get_illust(artwork_url + illust, quality=image_quality, directory=str(base_dir))
+                get_illust(artwork_url + illust, quality=image_quality, directory=str(base_dir))
             time.sleep(1)
 
     return
 
+def get_serie(url, image_quality):
+
+    serie_id = regex.findall(url)[1]
+    ajax_url = serie_url.replace("[serieID]", serie_id)
+    page = 1
+    base_dir = ""
+
+    response = s.get(ajax_url + str(page)).json()
+    title = response["body"]["illustSeries"][0]["title"]
+    base_dir = pathlib.Path(pathvalidate.sanitize_filepath(title))
+    base_dir.mkdir(parents=True, exist_ok=True)
+    total = response["body"]["illustSeries"][0]["total"]
+    total_page = (total+12-1) // 12 +1
+
+    for dummy in range(1, total_page):
+        pages = response["body"]["page"]["series"]
+        for page in pages:
+            output_dir = base_dir / str(page["order"])
+            
+            if check_ugoira(artwork_url + page["workId"]):
+                get_ugoira(artwork_url + page["workId"])
+            else:
+                get_illust(artwork_url + page["workId"], image_quality, output_dir)
+
+        response = s.get(ajax_url + str(dummy+1)).json()
+
+    return
 
 def main():
     parser = argparse.ArgumentParser("pixiv download")
@@ -161,6 +189,7 @@ def main():
     group.add_argument("-i", "--illust", help="Illustration url")
     group.add_argument("-u", "--ugoira", help="Ugoira url")
     group.add_argument("-b", "--backup", help="User profile url")
+    group.add_argument("-s", "--serie", help="Serie's url")
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
         "-v", "--video", help="Convert ugoira to video", action="store_true")
@@ -196,6 +225,9 @@ def main():
     if args.backup:
         get_user(args.backup, convertMp4=args.video, cleanup=args.clean_up, convertGif=args.gif,
                  video_quality=args.ugoira_quality, image_quality=args.illust_quality)
+
+    if args.serie:
+        get_serie(args.serie, image_quality=args.illust_quality)
 
     return
 
