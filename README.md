@@ -18,25 +18,31 @@ Once you got them, you can use the program as follow :
 
 * Download an illustration with max quality
 
-`python main.py -i "https://www.pixiv.net/en/artworks/94627049"`
+`python main.py -i "https://www.pixiv.net/en/artworks/94627049" -c cookies.txt`
 
 * Download an illustration with thumbnail only
 
-`python main.py -i "https://www.pixiv.net/en/artworks/103030454" -q thumb_mini`
+`python main.py -i "https://www.pixiv.net/en/artworks/103030454" --image-quality=thumb_mini -c cookies.txt`
 
 ### Download an animation
 
 * Download an animation without converting it (getting all the frames only), with the low resolution
 
-`python main.py -u "https://www.pixiv.net/en/artworks/103175508" -q src`
+`python main.py -u "https://www.pixiv.net/en/artworks/103175508" --image-quality=src -c cookies.txt`
 
 * Download an animation, converting it in a gif, without cleaning up (keeping all the frames as single files too)
 
-`python main.py -u "https://www.pixiv.net/en/artworks/103094262" -g`
+`python main.py -u "https://www.pixiv.net/en/artworks/103094262" -g -c cookies.txt`
 
 * Download an animation, converting it in a video file, cleaning all the frames, keeping only the video file
 
-`python main.py -u "https://www.pixiv.net/en/artworks/103076903" -v -k`
+`python main.py -u "https://www.pixiv.net/en/artworks/103076903" -v -k -c cookies.txt`
+
+### Download everything from an user
+
+* Download everything from an user. Quality settings and ugoira convertion arguments can be set too. 
+
+`python main.py -b "https://www.pixiv.net/en/users/20566937" -g --ugoira-quality=src --image-quality=regular -c cookies`
 
 ## Future updates
 
